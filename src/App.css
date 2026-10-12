@@ -1,0 +1,16 @@
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+body {
+  background: #f6f5f1;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
