@@ -83,6 +83,52 @@
   color: #202c3b;
 }
 
+.admin-applications-panel {
+  margin-top: 24px;
+}
+
+.dashboard-message {
+  margin-bottom: 16px;
+}
+
+.applicant-primary,
+.applicant-secondary {
+  display: block;
+}
+
+.applicant-primary {
+  font-weight: 600;
+}
+
+.applicant-secondary {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.admin-decision-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 190px;
+}
+
+.admin-decision-controls textarea {
+  min-height: 58px;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.85rem;
+}
+
+.admin-decision-controls .decision-actions {
+  gap: 6px;
+}
+
+.admin-decision-controls .approve-button,
+.admin-decision-controls .reject-button {
+  padding: 0.55rem 0.65rem;
+  font-size: 0.85rem;
+}
+
 .dashboard-grid {
   display: grid;
   gap: 24px;

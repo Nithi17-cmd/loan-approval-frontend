@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import AuthenticatedAccount from '../components/AuthenticatedAccount';
 import LogoutButton from '../components/LogoutButton';
@@ -66,10 +66,8 @@ function OfficerDashboard() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
-  const [decisionLoading, setDecisionLoading] = useState(false);
   const [error, setError] = useState('');
   const [assessmentResult, setAssessmentResult] = useState(null);
-  const [decisionReasonById, setDecisionReasonById] = useState({});
 
   const fetchPendingApplications = async () => {
     setLoading(true);
@@ -108,37 +106,7 @@ function OfficerDashboard() {
     }
   };
 
-  const handleDecision = async (applicationId, decision) => {
-    const reason = (decisionReasonById[applicationId] ?? '').trim();
-
-    if (!reason) {
-      setError('A decision reason is required before approving or rejecting an application.');
-      return;
-    }
-
-    setDecisionLoading(true);
-    setError('');
-
-    try {
-      await api.post(`/loans/applications/${applicationId}/decision`, {
-        decision,
-        status: decision,
-        reason,
-        comment: reason,
-        remarks: reason,
-      });
-
-      setDecisionReasonById((current) => ({ ...current, [applicationId]: '' }));
-      setAssessmentResult(null);
-      await fetchPendingApplications();
-    } catch (requestError) {
-      setError(getErrorMessage(requestError, 'The application could not be processed.'));
-    } finally {
-      setDecisionLoading(false);
-    }
-  };
-
-  const content = useMemo(() => {
+  const content = (() => {
     if (loading) {
       return <p className="state-copy">Loading pending applications...</p>;
     }
@@ -173,7 +141,6 @@ function OfficerDashboard() {
               const id = application.applicationId ?? application.id ?? application.application_id ?? '—';
               const status = application.status ?? application.loanStatus ?? 'PENDING';
               const riskSummary = assessmentResult?.applicationId === id ? `${assessmentResult.score} / ${assessmentResult.risk}` : 'Not assessed';
-              const reason = decisionReasonById[id] ?? '';
 
               return (
                 <tr key={id}>
@@ -197,35 +164,6 @@ function OfficerDashboard() {
                         {assessmentLoading ? 'Assessing...' : 'Assess risk'}
                       </button>
 
-                      <div className="decision-box">
-                        <label className="sr-only" htmlFor={`decision-${id}`}>Decision reason</label>
-                        <textarea
-                          id={`decision-${id}`}
-                          value={reason}
-                          onChange={(event) => setDecisionReasonById((current) => ({ ...current, [id]: event.target.value }))}
-                          placeholder="Reason for decision"
-                          rows="2"
-                        />
-                        <div className="decision-actions">
-                          <button
-                            type="button"
-                            className="approve-button"
-                            onClick={() => handleDecision(id, 'APPROVED')}
-                            disabled={decisionLoading}
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            className="reject-button"
-                            onClick={() => handleDecision(id, 'REJECTED')}
-                            disabled={decisionLoading}
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      </div>
-
                       <p className="assessment-readout">{riskSummary}</p>
                     </div>
                   </td>
@@ -236,7 +174,7 @@ function OfficerDashboard() {
         </table>
       </div>
     );
-  }, [applications, assessmentLoading, assessmentResult, decisionLoading, decisionReasonById, error, loading]);
+  })();
 
   return (
     <div className="dashboard-shell">
